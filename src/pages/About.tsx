@@ -17,6 +17,7 @@ export function AboutPage({
         eyebrow="About Vishnu Builderr"
         title={<>Built with purpose.<br /><em>Made to last.</em></>}
         text="We help people make better decisions about the places they build, live, work, and invest in."
+        image="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80"
       />
       <section className="section-pad about-introduction">
         <div className="container about-intro-grid">
@@ -62,8 +63,12 @@ export function AboutPage({
               [ShieldCheck, 'Transparent process', 'You always know the next step, the scope, and the people responsible.'],
               [BadgeCheck, 'Quality without compromise', 'We balance beautiful finishes with sound, lasting construction.'],
               [Clock3, 'On-time, on-budget delivery', 'A thoughtful plan keeps your project moving and your mind at ease.'],
-            ].map(([Icon, title, text]) => (
-              <motion.article variants={fadeUp} key={title as string}>
+            ].map(([Icon, title, text], index) => (
+              <motion.article
+                variants={fadeUp}
+                key={title as string}
+                transition={{ delay: index * 0.08 }}
+              >
                 <div className="difference-icon"><Icon size={24} /></div>
                 <h3>{title as string}</h3>
                 <p>{text as string}</p>

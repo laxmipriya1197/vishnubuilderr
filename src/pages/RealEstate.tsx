@@ -19,6 +19,7 @@ export function RealEstatePage({
         eyebrow="Real estate services"
         title={<>The right place<br /><em>changes everything.</em></>}
         text="Whether you are buying, selling, or investing, we make property decisions simpler with local knowledge and straight advice."
+        image="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1600&q=80"
       />
       <section className="real-estate-intro section-pad">
         <div className="container">

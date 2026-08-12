@@ -15,6 +15,7 @@ export function ContactPage({
         eyebrow="Contact us"
         title={<>We are always<br /><em>ready to help.</em></>}
         text="Have a project in mind? Tell us what you are thinking and we will help you find the right next step."
+        image="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80"
       />
       <section className="section-pad contact-page">
         <div className="container contact-page-grid">

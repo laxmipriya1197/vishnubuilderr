@@ -20,6 +20,8 @@ export function HomePage({
   viewport: { once: boolean; amount: number };
 }) {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const [visibleTestimonialsCount, setVisibleTestimonialsCount] = useState(3);
   const slide = heroSlides[activeSlide];
 
   useEffect(() => {
@@ -27,7 +29,27 @@ export function HomePage({
     return () => window.clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const updateVisibleTestimonials = () => {
+      if (window.innerWidth <= 680) setVisibleTestimonialsCount(1);
+      else if (window.innerWidth <= 900) setVisibleTestimonialsCount(2);
+      else setVisibleTestimonialsCount(3);
+    };
+
+    updateVisibleTestimonials();
+    window.addEventListener('resize', updateVisibleTestimonials);
+    return () => window.removeEventListener('resize', updateVisibleTestimonials);
+  }, []);
+
   const moveSlide = (direction: number) => setActiveSlide((current) => (current + direction + heroSlides.length) % heroSlides.length);
+  const moveTestimonials = (direction: number) => {
+    setTestimonialIndex((current) => (current + direction + testimonials.length) % testimonials.length);
+  };
+
+  const visibleTestimonials = Array.from({ length: visibleTestimonialsCount }, (_, index) => {
+    const testimonialIndexValue = (testimonialIndex + index) % testimonials.length;
+    return testimonials[testimonialIndexValue];
+  });
 
   return (
     <>
@@ -146,30 +168,59 @@ export function HomePage({
 
       <section className="testimonial-section section-pad">
         <div className="container">
-          <SectionTitle
-            eyebrow="Client Testimonials"
-            title={<>What our clients say about<br /><em>Vishnu Builderr.</em></>}
-            text="Real feedback from property owners, homeowners, and commercial clients across Coimbatore."
-          />
-          <motion.div className="testimonial-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={viewport}>
-            {testimonials.map(({ name, role, quote, rating }) => (
-              <motion.article className="testimonial-card" key={name} variants={fadeUp}>
-                <div className="testimonial-stars">
-                  {Array.from({ length: rating }).map((_, i) => (
-                    <Star key={i} size={16} fill="currentColor" />
-                  ))}
-                </div>
-                <p className="testimonial-quote">&ldquo;{quote}&rdquo;</p>
-                <div className="testimonial-author">
-                  <div className="avatar-badge">{name.charAt(0)}</div>
-                  <div className="author-info">
-                    <strong>{name}</strong>
-                    <span>{role}</span>
+          <div className="testimonial-header">
+            <SectionTitle
+              eyebrow="Client Testimonials"
+              title={<>What our clients say about<br /><em>Vishnu Builderr.</em></>}
+              text="Real feedback from property owners, homeowners, and commercial clients across Coimbatore."
+            />
+            <div className="testimonial-controls" aria-label="Testimonial controls">
+              <button type="button" onClick={() => moveTestimonials(-1)} aria-label="Previous testimonial"><ChevronLeft size={18} /></button>
+              <button type="button" onClick={() => moveTestimonials(1)} aria-label="Next testimonial"><ChevronRight size={18} /></button>
+            </div>
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={testimonialIndex}
+              className="testimonial-grid"
+              style={{ gridTemplateColumns: `repeat(${visibleTestimonialsCount}, minmax(0, 1fr))` }}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+            >
+              {visibleTestimonials.map(({ name, role, quote, rating }, index) => (
+                <motion.article className="testimonial-card" key={`${name}-${testimonialIndex}-${index}`} variants={fadeUp}>
+                  <div className="testimonial-stars">
+                    {Array.from({ length: rating }).map((_, i) => (
+                      <Star key={i} size={16} fill="currentColor" />
+                    ))}
                   </div>
-                </div>
-              </motion.article>
+                  <p className="testimonial-quote">&ldquo;{quote}&rdquo;</p>
+                  <div className="testimonial-author">
+                    <div className="avatar-badge">{name.charAt(0)}</div>
+                    <div className="author-info">
+                      <strong>{name}</strong>
+                      <span>{role}</span>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="testimonial-dots" aria-label="Testimonial pagination">
+            {testimonials.map((item, index) => (
+              <button
+                key={item.name}
+                type="button"
+                className={index === testimonialIndex ? 'active' : ''}
+                onClick={() => setTestimonialIndex(index)}
+                aria-label={`Go to testimonial ${index + 1}`}
+              />
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
