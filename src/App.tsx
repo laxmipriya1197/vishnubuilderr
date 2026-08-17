@@ -6,6 +6,7 @@ import { Topline } from './components/Topline';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { QuoteModal } from './components/QuoteModal';
+import { ConstructionQuoteModal } from './components/ConstructionQuoteModal';
 import { FloatingButtons } from './components/FloatingButtons';
 import { HomePage } from './pages/Home';
 import { ConstructionPage } from './pages/Construction';
@@ -26,7 +27,9 @@ function App() {
   const [page, setPage] = useState<Page>(getPage);
   const [menuOpen, setMenuOpen] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [constructionModalOpen, setConstructionModalOpen] = useState(false);
   const [formSent, setFormSent] = useState(false);
+  const [constructionFormSent, setConstructionFormSent] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [quoteService, setQuoteService] = useState<string>('Construction');
   const [isRealEstateModal, setIsRealEstateModal] = useState<boolean>(false);
@@ -40,7 +43,10 @@ function App() {
     return () => { window.removeEventListener('popstate', onPopState); window.removeEventListener('scroll', onScroll); };
   }, []);
 
-  useEffect(() => { document.body.style.overflow = quoteOpen ? 'hidden' : ''; return () => { document.body.style.overflow = ''; }; }, [quoteOpen]);
+  useEffect(() => {
+    document.body.style.overflow = (quoteOpen || constructionModalOpen) ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [quoteOpen, constructionModalOpen]);
 
   const navigate = (nextPage: Page) => {
     const path = nextPage === 'home' ? '/' : `/${nextPage}`;
@@ -56,6 +62,14 @@ function App() {
     setFormSent(false);
   };
   const closeQuote = () => { setQuoteOpen(false); setFormSent(false); };
+
+  const openConstructionQuote = (service = 'Residential construction') => {
+    setQuoteService(service);
+    setConstructionModalOpen(true);
+    setConstructionFormSent(false);
+  };
+  const closeConstructionQuote = () => { setConstructionModalOpen(false); setConstructionFormSent(false); };
+
   const viewport = { once: true, amount: 0.18 } as const;
   const motionProps = reduceMotion ? { initial: false, animate: { opacity: 1, y: 0 } } : { initial: 'hidden', whileInView: 'visible', variants: fadeUp, viewport };
 
@@ -67,7 +81,7 @@ function App() {
         <AnimatePresence mode="wait">
           <motion.div key={page} initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={reduceMotion ? undefined : { opacity: 0 }} transition={{ duration: 0.35 }}>
             {page === 'home' && <HomePage navigate={navigate} openQuote={() => openQuote('Construction')} reduceMotion={reduceMotion} motionProps={motionProps} viewport={viewport} />}
-            {page === 'construction' && <ConstructionPage openQuote={() => openQuote('Construction')} motionProps={motionProps} viewport={viewport} />}
+            {page === 'construction' && <ConstructionPage openQuote={() => openConstructionQuote()} motionProps={motionProps} viewport={viewport} />}
             {page === 'real-estate' && <RealEstatePage openQuote={(service) => openQuote(service, true)} motionProps={motionProps} viewport={viewport} />}
             {page === 'about' && <AboutPage motionProps={motionProps} viewport={viewport} />}
             {page === 'contact' && <ContactPage openQuote={() => openQuote('Construction')} motionProps={motionProps} />}
@@ -77,6 +91,7 @@ function App() {
       <Footer navigate={navigate} />
       <FloatingButtons />
       {quoteOpen && <QuoteModal closeQuote={closeQuote} formSent={formSent} setFormSent={setFormSent} initialService={quoteService} isRealEstate={isRealEstateModal} />}
+      {constructionModalOpen && <ConstructionQuoteModal closeQuote={closeConstructionQuote} formSent={constructionFormSent} setFormSent={setConstructionFormSent} initialService={quoteService} />}
     </div>
   );
 }

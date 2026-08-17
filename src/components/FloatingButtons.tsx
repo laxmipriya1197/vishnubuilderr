@@ -16,7 +16,7 @@ export function FloatingButtons() {
         </svg>
       </a>
       <a
-        href="https://instagram.com"
+        href="https://www.instagram.com/vishnubuilderr?igsh=dmkyeG00cmhuYmJx"
         target="_blank"
         rel="noopener noreferrer"
         className="float-btn instagram"

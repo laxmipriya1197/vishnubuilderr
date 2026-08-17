@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, Star } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight, Star, Building2, Landmark, ShieldCheck, MapPin } from 'lucide-react';
+import { AnimatePresence, motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import type { Page } from '../types';
-import { heroSlides, constructionServices, testimonials, fadeUp, stagger } from '../data/content';
+import { heroSlides, constructionServices, realEstateServices, testimonials, fadeUp, stagger } from '../data/content';
 import { SectionTitle } from '../components/SectionTitle';
 import { BuildingIllustration } from '../components/BuildingIllustration';
 
@@ -22,6 +22,18 @@ export function HomePage({
   const [activeSlide, setActiveSlide] = useState(0);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [visibleTestimonialsCount, setVisibleTestimonialsCount] = useState(3);
+  const [openServiceCard, setOpenServiceCard] = useState<number | null>(null);
+  const introRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: introProgress } = useScroll({ target: introRef, offset: ['start 82%', 'start 32%'] });
+  const introLeftX = useSpring(useTransform(introProgress, [0, 1], [-105, 0]), { stiffness: 70, damping: 24 });
+  const introRightX = useSpring(useTransform(introProgress, [0, 1], [105, 0]), { stiffness: 70, damping: 24 });
+  const introOpacity = useTransform(introProgress, [0, .35], [0, 1]);
+  const serviceImages = [
+    '/images/construction-service-01.webp',
+    '/images/construction-service-02.webp',
+    '/images/construction-service-03.webp',
+    '/images/construction-service-04.webp',
+  ];
   const slide = heroSlides[activeSlide];
 
   useEffect(() => {
@@ -99,7 +111,6 @@ export function HomePage({
               <p className="hero-body">{slide.body}</p>
               <div className="hero-actions">
                 <button className="button button-primary" onClick={openQuote}>Start a conversation <ArrowRight size={18} /></button>
-                <button className="text-link light" onClick={() => navigate('construction')}>Explore our work <ArrowRight size={16} /></button>
               </div>
             </motion.div>
           </AnimatePresence>
@@ -113,13 +124,13 @@ export function HomePage({
         </div>
       </section>
 
-      <section className="intro section-pad">
+      <section className="intro section-pad split-intro-reveal" ref={introRef}>
         <div className="container intro-grid">
-          <motion.div {...motionProps}>
+          <motion.div style={reduceMotion ? undefined : { x: introLeftX, opacity: introOpacity }}>
             <p className="eyebrow">The Vishnu Builderr way</p>
             <h2>Spaces made with <em>care</em>,<br />not just concrete.</h2>
           </motion.div>
-          <motion.div className="intro-text" {...motionProps} transition={{ delay: 0.15 }}>
+          <motion.div className="intro-text" style={reduceMotion ? undefined : { x: introRightX, opacity: introOpacity }}>
             <p>We are a construction, interior design, and real estate company helping people make confident decisions about the places they call home.</p>
             <p>With deep local knowledge and a practical approach, we turn big ideas into well-built, well-loved spaces.</p>
             <button className="text-link" onClick={() => navigate('about')}>More about us <ArrowRight size={16} /></button>
@@ -130,10 +141,7 @@ export function HomePage({
       <section className="dark-section section-pad home-about">
         <div className="container home-about-grid">
           <motion.div className="about-visual" {...motionProps}>
-            <div className="about-visual-inner">
-              <BuildingIllustration />
-              <div className="experience-badge"><strong>23</strong><span>years of combined<br />experience</span></div>
-            </div>
+            <BuildingIllustration />
           </motion.div>
           <motion.div className="about-copy" {...motionProps} transition={{ delay: 0.15 }}>
             <p className="eyebrow light">About Vishnu Builderr</p>
@@ -151,18 +159,108 @@ export function HomePage({
             title={<>Everything you need<br />to <em>build better.</em></>}
             text="One team, from first conversation to final handover. Thoughtful work, transparent communication, and no unnecessary complications."
           />
-          <motion.div className="service-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={viewport}>
+          <motion.div className="service-grid home-service-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={viewport}>
             {constructionServices.slice(0, 4).map(({ icon: Icon, title, text }, index) => (
-              <motion.article className={index === 0 ? 'service-card featured' : 'service-card'} key={title} variants={fadeUp} whileHover={{ y: -6 }}>
-                <div className="icon-box"><Icon size={23} strokeWidth={1.5} /></div>
-                <span className="card-number">0{index + 1}</span>
-                <h3>{title}</h3>
-                <p>{text}</p>
-                <button onClick={() => navigate('construction')} aria-label={`Learn more about ${title}`}><ArrowRight size={18} /></button>
+              <motion.article
+                className={`service-card home-image-service-card${openServiceCard === index ? ' is-open' : ''}`}
+                key={title}
+                variants={fadeUp}
+                tabIndex={0}
+                role="button"
+                aria-label={`${title} service card`}
+                aria-expanded={openServiceCard === index}
+                onClick={() => setOpenServiceCard((current) => current === index ? null : index)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    setOpenServiceCard((current) => current === index ? null : index);
+                  }
+                }}
+              >
+                <img className="home-service-image" src={serviceImages[index]} alt="" />
+                <div className="home-service-content">
+                  <div className="icon-box"><Icon size={23} strokeWidth={1.5} /></div>
+                  <span className="card-number">0{index + 1}</span>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                  <button tabIndex={openServiceCard === index ? 0 : -1} onClick={(event) => { event.stopPropagation(); navigate('construction'); }} aria-label={`Learn more about ${title}`}><ArrowRight size={18} /></button>
+                </div>
               </motion.article>
             ))}
           </motion.div>
           <button className="center-link" onClick={() => navigate('construction')}>View all construction services <ArrowRight size={17} /></button>
+        </div>
+      </section>
+
+      {/* Real Estate Section below What we do section */}
+      <section className="estate-section section-pad home-real-estate-section">
+        <div className="container">
+          <SectionTitle
+            eyebrow="Real estate & land guidance"
+            title={<>Trusted guidance for<br /><em>land, homes & investment.</em></>}
+            text="With 15+ years of real estate experience in Coimbatore, we help you buy, sell, and invest with absolute clarity and legal confidence."
+          />
+
+          <div className="home-estate-grid">
+            <motion.div
+              className="home-estate-visual-wrap"
+              initial={{ opacity: 0, x: -70 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="home-estate-image-box">
+                <img
+                  src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1000&q=80"
+                  alt="Real Estate & Property Investment Coimbatore"
+                  className="home-estate-img"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = '/images/hero-1.png';
+                  }}
+                />
+                <div className="home-estate-img-overlay" />
+                <div className="home-estate-badge">
+                  <strong>15+</strong>
+                  <span>Years Real Estate<br />Trust in Coimbatore</span>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="home-estate-features"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.25 }}
+              variants={stagger}
+            >
+              {realEstateServices.map(({ icon: Icon, title, text }) => (
+                <motion.div
+                  className="home-estate-feature-card"
+                  key={title}
+                  variants={fadeUp}
+                  whileHover={{ x: 8, transition: { duration: 0.25, ease: 'easeOut' } }}
+                  onClick={() => navigate('real-estate')}
+                >
+                  <div className="feature-icon-box">
+                    <Icon size={22} />
+                  </div>
+                  <div className="feature-info">
+                    <h3>{title}</h3>
+                    <p>{text}</p>
+                  </div>
+                  <span className="feature-arrow"><ArrowRight size={16} /></span>
+                </motion.div>
+              ))}
+
+              <div className="home-estate-actions">
+                <button className="button button-primary" onClick={() => navigate('real-estate')}>
+                  Explore Real Estate Services <ArrowRight size={17} />
+                </button>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -230,7 +328,7 @@ export function HomePage({
             <p className="eyebrow light">Your vision, our expertise</p>
             <h2>Let&apos;s make something<br /><em>worth coming home to.</em></h2>
           </div>
-          <button className="button button-primary" onClick={openQuote}>Get a free quote <ArrowRight size={17} /></button>
+          <button className="button button-primary" onClick={openQuote}>Contact us <ArrowRight size={17} /></button>
         </div>
       </section>
     </>

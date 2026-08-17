@@ -9,7 +9,15 @@ export function Topline() {
         <a href="tel:+919566714471"><Phone size={14} /> +91 95667 14471</a>
         <span className="top-spacer" />
         <span>Coimbatore · Tamil Nadu</span>
-        <Instagram size={15} />
+        <a
+          href="https://www.instagram.com/vishnubuilderr?igsh=dmkyeG00cmhuYmJx"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Follow Vishnu Builderr on Instagram"
+          style={{ color: 'inherit', display: 'inline-flex', alignItems: 'center' }}
+        >
+          <Instagram size={15} />
+        </a>
       </div>
     </div>
   );

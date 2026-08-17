@@ -33,7 +33,7 @@ export function Footer({ navigate }: { navigate: (page: Page) => void }) {
           <h4>Get in touch</h4>
           <a href="tel:+919566714471"><Phone size={16} /> +91 95667 14471</a>
           <a href="mailto:vishnubuilderr@gmail.com"><Mail size={16} /> vishnubuilderr@gmail.com</a>
-          <span><MapPin size={16} /> Coimbatore, Tamil Nadu</span>
+          <span><MapPin size={16} /> Pappampatti Pirivu, Coimbatore - 641103</span>
         </div>
       </div>
       <div className="footer-bottom">

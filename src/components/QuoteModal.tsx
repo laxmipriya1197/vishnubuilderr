@@ -16,6 +16,8 @@ export function QuoteModal({
   initialService?: string;
   isRealEstate?: boolean;
 }) {
+  const baseServices = ['Construction', 'Interior', 'Real Estate', 'I am not sure'];
+
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
