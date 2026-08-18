@@ -159,6 +159,7 @@ img {
     position: relative;
     padding: 0;
     font: inherit;
+    white-space: nowrap;
 }
 
 .nav-links button:after {
@@ -2619,6 +2620,27 @@ textarea {
     position: relative;
     z-index: 1;
     color: var(--orange);
+}
+
+/* Keep the desktop navigation compact before the mobile layout takes over. */
+@media (min-width: 901px) and (max-width: 1024px) {
+    .nav-inner {
+        gap: 20px;
+    }
+
+    .nav-links {
+        gap: 16px;
+        font-size: 12px;
+    }
+
+    .brand {
+        width: 150px;
+    }
+
+    .nav-cta {
+        padding: 10px 12px;
+        font-size: 11px;
+    }
 }
 
 .map-card span {
